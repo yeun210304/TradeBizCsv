@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link th:href="@{/css/bootstrap.min.css}"
+        href="/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 560px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="py-5 text-center">
+        <h2>법인 통신 판매사업장 조회</h2>
+    </div>
+
+    <form th:action="@{/load-csv}" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="csvFile" class="form-label">조회할 csv파일을 선택해주세요</label>
+            <input type="file" class="form-control" id="csvFile" name="csvFile" required>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="row">
+            <div class="col">
+                <button type="submit" class="100 btn btn-primary btn-lg">조회</button>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+</body>
+</html>
