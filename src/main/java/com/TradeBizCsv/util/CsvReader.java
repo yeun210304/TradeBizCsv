@@ -3,7 +3,11 @@ package com.TradeBizCsv.util;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,23 +20,43 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class CsvReader {
+    private final int THREAD_COUNT = 4;
+    private final String Bubin = "법인";
+
     public List<String[]> readCsv(MultipartFile file) {
-        List<String[]> data = new ArrayList<>();
+        List<String[]> res = Collections.synchronizedList(new ArrayList<>());
+
+        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
 
         try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
             String[] line;
-            
             while ((line = reader.readNext()) != null) {
-                data.add(line);
+                filterData(res, executorService, line);
             }
         } 
-        catch (IOException e) {
+        catch (IOException | CsvValidationException e ) {
             log.error("error reading CSV={}", e.getMessage());
+            e.printStackTrace();
         } 
-        catch (CsvValidationException e) {
-            log.error("error reading CSV={}", e.getMessage());
+        finally {
+            executorService.shutdown();
+
+            try {
+                executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            } catch (InterruptedException e) {
+                log.error("Executor service interrupted={}", e.getMessage());
+            }
         }
 
-        return data;
+        return res;
+    }
+
+    private void filterData(List<String[]> res, ExecutorService executorService, String[] line) {
+        String[] currentLine = line;
+        executorService.submit(() -> {
+            if (Bubin.equals(currentLine[4])) {
+                res.add(currentLine);    
+            }
+        });
     }
 }

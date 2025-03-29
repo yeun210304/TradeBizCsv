@@ -22,9 +22,6 @@ public class TradeBizController {
 
     @PostMapping("/load-csv")
     public String loadCsvFile(@RequestParam("csvFile") MultipartFile file) {
-        if (file.isEmpty()) {
-            log.error("error log={}", "file is empty");
-        }
         List<String[]> csv = tradeBizService.loadCsv(file);
         
         for (String[] line : csv) {
