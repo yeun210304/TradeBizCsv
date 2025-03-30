@@ -1,9 +1,9 @@
 package com.TradeBizCsv.controller;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,16 +20,18 @@ public class TradeBizController {
 
     private final TradeBizService tradeBizService;
 
+    @GetMapping("/")
+    public String welcomPage() {
+        return "uploadform";
+    }
+
     @PostMapping("/load-csv")
     public String loadCsvFile(@RequestParam("csvFile") MultipartFile file) {
         List<String[]> csv = tradeBizService.loadCsv(file);
         
-        for (String[] line : csv) {
-            log.info("cell={}", Arrays.toString(line));
-        }
-        
+        tradeBizService.searchCrno(csv);
 
-        return "redirect:/";
+        return "search-bubin-num";
     }
 
 

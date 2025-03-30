@@ -31,7 +31,7 @@ public class CsvReader {
         try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
             String[] line;
             while ((line = reader.readNext()) != null) {
-                filterData(res, executorService, line);
+                addFilterData(res, executorService, line);
             }
         } 
         catch (IOException | CsvValidationException e ) {
@@ -51,7 +51,7 @@ public class CsvReader {
         return res;
     }
 
-    private void filterData(List<String[]> res, ExecutorService executorService, String[] line) {
+    private void addFilterData(List<String[]> res, ExecutorService executorService, String[] line) {
         String[] currentLine = line;
         executorService.submit(() -> {
             if (Bubin.equals(currentLine[4])) {
