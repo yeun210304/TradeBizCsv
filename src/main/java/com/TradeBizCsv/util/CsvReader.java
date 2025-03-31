@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.TradeBizCsv.common.constants;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -20,13 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class CsvReader {
-    private final int THREAD_COUNT = 4;
-    private final String Bubin = "법인";
-
     public List<String[]> readCsv(MultipartFile file) {
         List<String[]> res = Collections.synchronizedList(new ArrayList<>());
 
-        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        ExecutorService executorService = Executors.newFixedThreadPool(constants.THREAD_COUNT);
 
         try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
             String[] line;
@@ -54,7 +52,7 @@ public class CsvReader {
     private void addFilterData(List<String[]> res, ExecutorService executorService, String[] line) {
         String[] currentLine = line;
         executorService.submit(() -> {
-            if (Bubin.equals(currentLine[4])) {
+            if (constants.Bubin.equals(currentLine[4])) {
                 res.add(currentLine);    
             }
         });
