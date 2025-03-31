@@ -1,6 +1,7 @@
 package com.TradeBizCsv.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +24,7 @@ public class TradeBizServiceImpl implements TradeBizService {
     }
 
     @Override
-    public String searchCrno(String brno) {
+    public Optional<String> searchCrno(String brno) {
         return tradeSellerApiClient.fetchData(brno);
     }
     

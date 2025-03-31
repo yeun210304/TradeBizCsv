@@ -31,7 +31,7 @@ public class TradeBizController {
 
         for (String[] row : csv) {
             String brno = row[3].replaceAll("-", "");
-            String crno = tradeBizService.searchCrno(brno);
+            String crno = tradeBizService.searchCrno(brno).orElse("");
             log.info("brno={}, crno={}", brno, crno);
         }
 
