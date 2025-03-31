@@ -68,8 +68,7 @@ public class TradeSellerApiClient {
         return urlStrBuffer.toString();
     }
 
-    public void setApiDecodingKeyForTest(String string) {
-        apiDecodingKey = string;
+    public void setApiDecodingKey(String apiDecodingKey) {
+        this.apiDecodingKey = apiDecodingKey;
     }
-
 }
