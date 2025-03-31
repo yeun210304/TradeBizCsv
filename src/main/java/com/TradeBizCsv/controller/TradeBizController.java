@@ -28,10 +28,14 @@ public class TradeBizController {
     @PostMapping("/load-csv")
     public String loadCsvFile(@RequestParam("csvFile") MultipartFile file) {
         List<String[]> csv = tradeBizService.loadCsv(file);
-        
-        tradeBizService.searchCrno(csv);
 
-        return "search-bubin-num";
+        for (String[] row : csv) {
+            String brno = row[3].replaceAll("-", "");
+            String crno = tradeBizService.searchCrno(brno);
+            log.info("brno={}, crno={}", brno, crno);
+        }
+
+        return "";
     }
 
 

@@ -23,11 +23,8 @@ public class TradeBizServiceImpl implements TradeBizService {
     }
 
     @Override
-    public List<String[]> searchCrno(List<String[]> data) {
-        for (String[] row : data) {
-            String searchCrno = tradeSellerApiClient.fetchData(row);
-        }
-        return null;
+    public String searchCrno(String brno) {
+        return tradeSellerApiClient.fetchData(brno);
     }
     
 }

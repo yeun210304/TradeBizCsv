@@ -8,5 +8,5 @@ public interface TradeBizService {
 
     public List<String[]> loadCsv(MultipartFile file);
 
-    public List<String[]> searchCrno(List<String[]> data);
+    public String searchCrno(String brno);
 }
