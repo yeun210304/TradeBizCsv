@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.TradeBizCsv.client.PublicAddr;
 import com.TradeBizCsv.client.TradeSellerApiClient;
 import com.TradeBizCsv.util.CsvReader;
 
@@ -18,12 +19,14 @@ public class TradeBizServiceImplTest {
     TradeBizService tradeBizService;
     TradeSellerApiClient tradeSellerApiClient;
     CsvReader csvReader;
+    PublicAddr publicAddr;
 
     @BeforeEach
     void setUp() {
         csvReader = new CsvReader();
         tradeSellerApiClient = new TradeSellerApiClient();
-        tradeBizService = new TradeBizServiceImpl(csvReader, tradeSellerApiClient);
+        publicAddr = new PublicAddr();
+        tradeBizService = new TradeBizServiceImpl(csvReader, publicAddr, tradeSellerApiClient);
     }
 
     @Test
@@ -34,7 +37,7 @@ public class TradeBizServiceImplTest {
         tradeSellerApiClient.setApiDecodingKey("lHXPxamRGWYJrmUQB48W5cFRC4ItUhwYoRkcWrePrZqNZsTRMmKL//JtPrPqzeh0/n14QuDWF3mt6I4G5Hpf0Q==");
 
         //when
-        String crno = tradeBizService.searchCrno(brno).orElse("");
+        String crno = tradeBizService.getCrno(brno);
 
         //then
         assertEquals(crno, expectCrno.get());

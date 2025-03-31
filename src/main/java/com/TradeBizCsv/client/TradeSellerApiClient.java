@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,8 +20,6 @@ public class TradeSellerApiClient {
     @Value("${api.tradeBiz.decodingKey}")
     private String apiDecodingKey;
 
-    private final String apiUrl = "http://apis.data.go.kr/1130000/MllBsDtl_2Service";
-
     public Optional<String> fetchData(String brno) {
         
         RestTemplate restTemplate = new RestTemplate();
@@ -29,7 +28,7 @@ public class TradeSellerApiClient {
         Optional<String> crno = Optional.empty();
         
         try {
-            String url = makingUrl(brno);
+            String url = makeUrl(brno);
 
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
@@ -42,16 +41,17 @@ public class TradeSellerApiClient {
             else 
                 crno = Optional.of(null);
         }
-        catch (Exception e) {
+        catch (JsonProcessingException e) {
             log.error("error fetch 통신판매사업자 등록상세 제공 서비스 데이터={}", e.getMessage());
         }
         
         return crno;
     }
     
-    public String makingUrl(String brno) {
+    public String makeUrl(String brno) {
         StringBuffer urlStrBuffer = new StringBuffer();
         
+        String apiUrl = "http://apis.data.go.kr/1130000/MllBsDtl_2Service";
         String resultType = "json";
 
         urlStrBuffer.append(apiUrl)
