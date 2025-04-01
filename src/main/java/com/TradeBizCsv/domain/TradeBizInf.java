@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class TradeBiz {
+public class TradeBizInf {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;            // id
@@ -21,7 +21,7 @@ public class TradeBiz {
 
     @Column(name = "bzmnNm")
     private String bzmnNm;      // 상호
-
+ 
     @Column(name = "brno")
     private String brno;        // 사업자등록번호
 
