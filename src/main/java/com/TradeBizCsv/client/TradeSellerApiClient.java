@@ -1,18 +1,15 @@
 package com.TradeBizCsv.client;
 
 import java.util.Optional;
-import java.util.concurrent.CompletionException;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
@@ -21,50 +18,42 @@ public class TradeSellerApiClient {
     @Value("${api.tradeBiz.decodingKey}")
     private String apiDecodingKey;
 
-    public Optional<String> fetchData(String brno) {
-        
-        RestTemplate restTemplate = new RestTemplate();
-        ObjectMapper objectMapper = new ObjectMapper();
+    private final WebClient webClient;
 
-        Optional<String> crno = Optional.empty();
-        String url = makeUrl(brno);
-        
-        try {
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                JsonNode rootNode = objectMapper.readTree(response.getBody());
-
-                crno = extracted(rootNode);
-            }
-        }
-        catch (JsonProcessingException e) {
-            log.error("error with json parsing: {}", e.getMessage());
-        }
-        catch (CompletionException e) {
-            log.error("법인등록번호 조회 실패 url: {}", url);
-        }
-        
-        return crno;
+    public TradeSellerApiClient(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl("http://apis.data.go.kr/1130000/MllBsDtl_2Service").build();
     }
 
-    private Optional<String> extracted(JsonNode rootNode) {
+    public Mono<String> fetchData(String brno) {
+        String url = makeUrl(brno);
+
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .map(param -> extracted(param))
+                .onErrorResume(e -> {
+                    log.error("법인등록번호 조회 실패 url: {}", url, e);
+                    return Mono.empty();
+                });
+    }
+
+    private String extracted(JsonNode rootNode) {
         return Optional.ofNullable(rootNode.get("items"))
                         .filter(itemsNode -> itemsNode != null && itemsNode.size() > 0)
                         .map(items -> items.get(0))
                         .filter(itemNode -> itemNode != null && itemNode.size() > 0 && itemNode.has("crno"))
                         .map(item -> item.get("crno"))
                         .map(JsonNode::asText)
-                        .filter(admCd -> !admCd.isEmpty());
+                        .filter(admCd -> !admCd.isEmpty())
+                        .orElse("");
     }
     
     public String makeUrl(String brno) {
-        String apiUrl = "http://apis.data.go.kr/1130000/MllBsDtl_2Service";
         String resultType = "json";
 
         StringBuffer urlStrBuffer = new StringBuffer();
-        urlStrBuffer.append(apiUrl)
-                .append("/getMllBsInfoDetail_2?serviceKey=")
+        urlStrBuffer.append("/getMllBsInfoDetail_2?serviceKey=")
                 .append(apiDecodingKey)
                 .append("&pageNo=1")
                 .append("&numOfRows=100")

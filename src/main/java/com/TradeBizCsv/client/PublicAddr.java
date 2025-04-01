@@ -1,18 +1,15 @@
 package com.TradeBizCsv.client;
 
 import java.util.Optional;
-import java.util.concurrent.CompletionException;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
@@ -21,41 +18,35 @@ public class PublicAddr {
     @Value("${api.publicAddr.key}")
     private String confmKey;
 
-    public Optional<String> getAdmCd(String keyword) {
+    private final WebClient webClient;
 
-        RestTemplate restTemplate = new RestTemplate();
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        Optional<String> prmmiMnno = Optional.empty();
-        String url = makeUrl(keyword);
-
-        try {
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            
-            if (response.getStatusCode().is2xxSuccessful()) {
-                JsonNode rootNode = objectMapper.readTree(response.getBody());
-
-                prmmiMnno = extracted(rootNode);
-            }
-        }
-        catch (JsonProcessingException e) {
-            log.error("error with json parsing: {}", e.getMessage());
-        }
-        catch (CompletionException e) {
-            log.error("행정구역코드 조회 실패 url: {}", url);
-        }
-
-        return prmmiMnno;
+    public PublicAddr(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl("https://business.juso.go.kr").build();
     }
 
-    private Optional<String> extracted(JsonNode rootNode) {
+    public Mono<String> getAdmCd(String keyword) {
+        String url = makeUrl(keyword);
+
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .map(param -> extracted(param))
+                .onErrorResume(e -> {
+                    log.error("행정구역코드 조회 실패 url: {}", url, e);
+                    return Mono.empty();
+                });
+    }
+
+    private String extracted(JsonNode rootNode) {
         return Optional.ofNullable(rootNode.get("results"))
                         .map(res -> res.get("juso"))
                         .filter(jusoNode -> jusoNode != null && jusoNode.size() > 0)
                         .map(jusoNode -> jusoNode.get(0))
                         .filter(itemNode -> itemNode != null && itemNode.has("admCd"))
                         .map(itemNode -> itemNode.get("admCd").asText())
-                        .filter(admCd -> !admCd.isEmpty());
+                        .filter(admCd -> !admCd.isEmpty())
+                        .orElse("");
     }
 
     private String makeUrl(String keyword) {
@@ -65,7 +56,7 @@ public class PublicAddr {
 
         StringBuffer urlStrBuffer = new StringBuffer();
         
-        urlStrBuffer.append("https://business.juso.go.kr/addrlink/addrLinkApi.do?currentPage=")
+        urlStrBuffer.append("/addrlink/addrLinkApi.do?currentPage=")
             .append(currentPage)
             .append("&countPerPage=")
             .append(countPerPage)
