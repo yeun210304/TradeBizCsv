@@ -35,12 +35,12 @@ public class TradeBizServiceImpl implements TradeBizService {
 
     @Override
     public String getCrno(String brno) {
-        return tradeSellerApiClient.fetchData(brno).orElse("");
+        return tradeSellerApiClient.fetchData(brno).block();
     }
 
     @Override
     public String getAdmCd(String addr) {
-        return publicAddr.getAdmCd(addr).orElse("");
+        return publicAddr.getAdmCd(addr).block();
     }
 
     @Override
