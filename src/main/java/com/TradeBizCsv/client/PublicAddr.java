@@ -50,7 +50,6 @@ public class PublicAddr {
     }
 
     private String makeUrl(String keyword) {
-
         String currentPage = "1";
         String countPerPage = "10";
         String resultType = "json";

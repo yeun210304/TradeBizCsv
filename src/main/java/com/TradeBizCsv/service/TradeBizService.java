@@ -12,4 +12,5 @@ public interface TradeBizService {
 
     public String getAdmCd(String addr);
 
+    
 }
