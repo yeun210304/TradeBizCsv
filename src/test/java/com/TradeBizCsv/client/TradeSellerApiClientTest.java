@@ -16,7 +16,6 @@ public class TradeSellerApiClientTest {
 
     @BeforeEach
     void setUp() {
-        tradeSellerApiClient = new TradeSellerApiClient();
         tradeSellerApiClient.setApiDecodingKey("lHXPxamRGWYJrmUQB48W5cFRC4ItUhwYoRkcWrePrZqNZsTRMmKL//JtPrPqzeh0/n14QuDWF3mt6I4G5Hpf0Q==");
     }
 
@@ -27,7 +26,7 @@ public class TradeSellerApiClientTest {
         ResponseEntity<String> response = ResponseEntity.ok("1101110919193");
 
         //when
-        String crno = tradeSellerApiClient.fetchData(brno).orElse("");
+        String crno = tradeSellerApiClient.fetchData(brno).block();
         log.info("crno={}", crno);
 
         //then
