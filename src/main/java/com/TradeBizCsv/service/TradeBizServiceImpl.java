@@ -7,6 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.TradeBizCsv.client.PublicAddr;
 import com.TradeBizCsv.client.TradeSellerApiClient;
+import com.TradeBizCsv.domain.TradeBizInf;
+import com.TradeBizCsv.repository.TradeBizRepository;
 import com.TradeBizCsv.util.CsvReader;
 
 import lombok.RequiredArgsConstructor;
@@ -15,9 +17,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TradeBizServiceImpl implements TradeBizService {
 
-    public final CsvReader csvReader;
-    public final PublicAddr publicAddr;
-    public final TradeSellerApiClient tradeSellerApiClient;
+    private final TradeBizRepository tradeBizRepository;
+    private final CsvReader csvReader;
+    private final PublicAddr publicAddr;
+    private final TradeSellerApiClient tradeSellerApiClient;
 
     @Override
     public List<String[]> loadCsv(MultipartFile file) {
@@ -32,6 +35,11 @@ public class TradeBizServiceImpl implements TradeBizService {
     @Override
     public String getAdmCd(String addr) {
         return publicAddr.getAdmCd(addr).orElse("");
+    }
+
+    @Override
+    public TradeBizInf saveTradeBiz(TradeBizInf tradeBizInf) {
+        return tradeBizRepository.save(tradeBizInf);
     }
     
 }
