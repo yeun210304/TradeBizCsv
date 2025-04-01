@@ -6,9 +6,13 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import com.TradeBizCsv.client.PublicAddr;
 import com.TradeBizCsv.client.TradeSellerApiClient;
+import com.TradeBizCsv.repository.TradeBizRepository;
 import com.TradeBizCsv.util.CsvReader;
 
 import lombok.extern.slf4j.Slf4j;
@@ -16,17 +20,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TradeBizServiceImplTest {
 
+    @InjectMocks
     TradeBizService tradeBizService;
+
+    @Mock
+    TradeBizRepository tradeBizRepository;
+
+    @Mock
     TradeSellerApiClient tradeSellerApiClient;
+
+    @Mock
     CsvReader csvReader;
+
+    @Mock
     PublicAddr publicAddr;
 
     @BeforeEach
     void setUp() {
-        csvReader = new CsvReader();
-        tradeSellerApiClient = new TradeSellerApiClient();
-        publicAddr = new PublicAddr();
-        tradeBizService = new TradeBizServiceImpl(csvReader, publicAddr, tradeSellerApiClient);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
