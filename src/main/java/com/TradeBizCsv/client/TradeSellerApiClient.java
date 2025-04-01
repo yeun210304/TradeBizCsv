@@ -49,11 +49,10 @@ public class TradeSellerApiClient {
     }
     
     public String makeUrl(String brno) {
-        StringBuffer urlStrBuffer = new StringBuffer();
-        
         String apiUrl = "http://apis.data.go.kr/1130000/MllBsDtl_2Service";
         String resultType = "json";
 
+        StringBuffer urlStrBuffer = new StringBuffer();
         urlStrBuffer.append(apiUrl)
                 .append("/getMllBsInfoDetail_2?serviceKey=")
                 .append(apiDecodingKey)
@@ -63,8 +62,6 @@ public class TradeSellerApiClient {
                 .append(resultType)
                 .append("&brno=")
                 .append(brno);
-
-        log.info("url={}", urlStrBuffer.toString());
         return urlStrBuffer.toString();
     }
 
