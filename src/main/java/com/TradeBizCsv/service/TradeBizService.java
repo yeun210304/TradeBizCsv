@@ -14,6 +14,6 @@ public interface TradeBizService {
 
     public String getAdmCd(String addr);
 
-    public TradeBizInf saveTradeBiz(TradeBizInf tradeBizInf);
+    public void saveAllTradeBiz(List<TradeBizInf> tradeBizList);
     
 }
