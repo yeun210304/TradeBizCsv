@@ -1,6 +1,7 @@
 package com.TradeBizCsv.client;
 
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -26,26 +27,35 @@ public class TradeSellerApiClient {
         ObjectMapper objectMapper = new ObjectMapper();
 
         Optional<String> crno = Optional.empty();
+        String url = makeUrl(brno);
         
         try {
-            String url = makeUrl(brno);
-
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 JsonNode rootNode = objectMapper.readTree(response.getBody());
-                JsonNode itemsNode = rootNode.get("items");
 
-                crno = Optional.of(itemsNode.get(0).get("crno").asText());
+                crno = extracted(rootNode);
             }
-            else 
-                crno = Optional.of(null);
         }
         catch (JsonProcessingException e) {
-            log.error("error fetch 통신판매사업자 등록상세 제공 서비스 데이터={}", e.getMessage());
+            log.error("error with json parsing: {}", e.getMessage());
+        }
+        catch (CompletionException e) {
+            log.error("법인등록번호 조회 실패 url: {}", url);
         }
         
         return crno;
+    }
+
+    private Optional<String> extracted(JsonNode rootNode) {
+        return Optional.ofNullable(rootNode.get("items"))
+                        .filter(itemsNode -> itemsNode != null && itemsNode.size() > 0)
+                        .map(items -> items.get(0))
+                        .filter(itemNode -> itemNode != null && itemNode.size() > 0 && itemNode.has("crno"))
+                        .map(item -> item.get("crno"))
+                        .map(JsonNode::asText)
+                        .filter(admCd -> !admCd.isEmpty());
     }
     
     public String makeUrl(String brno) {

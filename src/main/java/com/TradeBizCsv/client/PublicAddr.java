@@ -1,6 +1,7 @@
 package com.TradeBizCsv.client;
 
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -26,27 +27,35 @@ public class PublicAddr {
         ObjectMapper objectMapper = new ObjectMapper();
 
         Optional<String> prmmiMnno = Optional.empty();
+        String url = makeUrl(keyword);
 
         try {
-            String url = makeUrl(keyword);
-
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
             
             if (response.getStatusCode().is2xxSuccessful()) {
                 JsonNode rootNode = objectMapper.readTree(response.getBody());
-                JsonNode itemNode = rootNode.get("results");
 
-                prmmiMnno = Optional.of(itemNode.get("juso").get(0).get("admCd").asText());
-            }
-            else {
-                prmmiMnno = Optional.of(null);
+                prmmiMnno = extracted(rootNode);
             }
         }
         catch (JsonProcessingException e) {
-            log.error("error with 행정구역코드 조회", e.getMessage());
+            log.error("error with json parsing: {}", e.getMessage());
+        }
+        catch (CompletionException e) {
+            log.error("행정구역코드 조회 실패 url: {}", url);
         }
 
         return prmmiMnno;
+    }
+
+    private Optional<String> extracted(JsonNode rootNode) {
+        return Optional.ofNullable(rootNode.get("results"))
+                        .map(res -> res.get("juso"))
+                        .filter(jusoNode -> jusoNode != null && jusoNode.size() > 0)
+                        .map(jusoNode -> jusoNode.get(0))
+                        .filter(itemNode -> itemNode != null && itemNode.has("admCd"))
+                        .map(itemNode -> itemNode.get("admCd").asText())
+                        .filter(admCd -> !admCd.isEmpty());
     }
 
     private String makeUrl(String keyword) {
