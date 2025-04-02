@@ -37,13 +37,6 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	// Mockito
-    testImplementation 'org.mockito:mockito-core:5.5.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0'
-
-	// Reactor
-    testImplementation 'io.projectreactor:reactor-test:3.5.10'
 }
 
 tasks.named('test') {
