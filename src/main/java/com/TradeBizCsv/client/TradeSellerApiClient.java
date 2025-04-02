@@ -33,16 +33,18 @@ public class TradeSellerApiClient {
                 .bodyToMono(JsonNode.class)
                 .map(param -> extracted(param))
                 .onErrorResume(e -> {
-                    log.error("법인등록번호 조회 실패 url: {}", url, e);
-                    return Mono.empty();
+                    log.error("법인등록번호 조회 실패 url: {}", webClient.toString() + url, e);
+                    return Mono.just("");
                 });
     }
 
     private String extracted(JsonNode rootNode) {
-        return Optional.ofNullable(rootNode.get("items"))
+        return Optional.ofNullable(rootNode)
+                        .filter(nodes -> nodes != null && nodes.has("items"))
+                        .map(node -> node.get("items"))
                         .filter(itemsNode -> itemsNode != null && itemsNode.size() > 0)
                         .map(items -> items.get(0))
-                        .filter(itemNode -> itemNode != null && itemNode.size() > 0 && itemNode.has("crno"))
+                        .filter(itemNode -> itemNode != null && itemNode.has("crno"))
                         .map(item -> item.get("crno"))
                         .map(JsonNode::asText)
                         .filter(admCd -> !admCd.isEmpty())

@@ -3,6 +3,7 @@ package com.TradeBizCsv.client;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -29,17 +30,21 @@ public class PublicAddr {
 
         return webClient.get()
                 .uri(url)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(JsonNode.class)
                 .map(param -> extracted(param))
                 .onErrorResume(e -> {
-                    log.error("행정구역코드 조회 실패 url: {}", url, e);
+                    log.error("행정구역코드 조회 실패 url: {}", webClient.toString() + url, e);
                     return Mono.empty();
                 });
     }
 
     private String extracted(JsonNode rootNode) {
-        return Optional.ofNullable(rootNode.get("results"))
+        return Optional.ofNullable(rootNode)
+                        .filter(nodes -> nodes != null && nodes.has("results"))
+                        .map(node -> node.get("results"))
+                        .filter(res -> res != null && res.has("juso"))
                         .map(res -> res.get("juso"))
                         .filter(jusoNode -> jusoNode != null && jusoNode.size() > 0)
                         .map(jusoNode -> jusoNode.get(0))
