@@ -46,11 +46,9 @@ public class TradeBizServiceImpl implements TradeBizService {
     @Override
     @Transactional
     public void saveAllTradeBiz(List<TradeBizInf> tradeBizList) {
-        log.info("법인사업자 정보 저장 시작 총 {} 개", tradeBizList.size());
         tradeBizRepository.saveAll(tradeBizList);
         tradeBizRepository.flush();
         log.info("총 {} 개의 법인사업자 정보 저장 완료", tradeBizList.size());
     }
-
     
 }
