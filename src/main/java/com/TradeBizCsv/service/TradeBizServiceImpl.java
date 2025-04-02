@@ -24,7 +24,7 @@ public class TradeBizServiceImpl implements TradeBizService {
     private final CsvReader csvReader;
     private final PublicAddr publicAddr;
     private final TradeSellerApiClient tradeSellerApiClient;
-
+    
     @Override
     public List<String[]> loadCsv(MultipartFile file) {
         log.info("csv 파일 업로드 시작: {}", file.getOriginalFilename());
