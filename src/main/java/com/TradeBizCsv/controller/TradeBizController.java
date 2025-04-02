@@ -1,6 +1,7 @@
 package com.TradeBizCsv.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.TradeBizCsv.domain.TradeBizInf;
 import com.TradeBizCsv.service.TradeBizService;
@@ -29,7 +31,7 @@ public class TradeBizController {
     }
 
     @PostMapping("/saveTraceBizInf")
-    public String loadCsvFile(@RequestParam("csvFile") MultipartFile file) {
+    public String loadCsvFile(@RequestParam("csvFile") MultipartFile file, RedirectAttributes redirectAttributes) {
 
         List<String[]> csv = tradeBizService.loadCsv(file);
 
@@ -58,6 +60,7 @@ public class TradeBizController {
         
         tradeBizService.saveAllTradeBiz(tradeBizInfLst);
 
+        redirectAttributes.addAttribute("resMsg", "총 " + tradeBizInfLst.size() + " 건이 저장되었습니다.");
         return "redirect:/";
     }
 

@@ -18,6 +18,8 @@
         <h2>법인 통신 판매사업장 조회</h2>
     </div>
 
+    <h3 th:text="${param.resMsg}"> </h3>
+
     <form th:action="@{/saveTraceBizInf}" method="post" enctype="multipart/form-data">
         <div>
             <label for="csvFile" class="form-label">이용할 csv파일을 선택해주세요</label>
