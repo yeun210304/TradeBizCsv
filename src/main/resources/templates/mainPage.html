@@ -6,12 +6,22 @@
         href="/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .container {
-            max-width: 560px;
+            max-width: 840px;
+        }
+        .table-responsive {
+            max-width: 840px; /* 1.5 times the original width */
+            margin: auto;
         }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector('form').addEventListener('submit', function() {
+                document.getElementById('loadingSpinner').style.display = 'block';
+            });
+        });
+    </script>
 </head>
 <body>
-
 <div class="container">
 
     <div class="py-5 text-center">
@@ -21,6 +31,12 @@
     <h3 th:text="${param.resMsg}"> </h3>
 
     <form th:action="@{/saveTraceBizInf}" method="post" enctype="multipart/form-data">
+        <div id="loadingSpinner" style="display: none; text-align: center; margin-bottom: 20px;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>처리 중입니다. 잠시만 기다려주세요...</p>
+        </div>
         <div>
             <label for="csvFile" class="form-label">이용할 csv파일을 선택해주세요</label>
             <input type="file" class="form-control" id="csvFile" name="csvFile" required>
@@ -36,6 +52,46 @@
         </div>
 
     </form>
+
+    <div style="height: 30px;"></div>
+
+    <div th:if="${page != null and !page.isEmpty()}" class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">통신판매번호</th>
+                    <th scope="col">상호</th>
+                    <th scope="col">사업자등록번호</th>
+                    <th scope="col">법인등록번호</th>
+                    <th scope="col">행정구역코드</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row : ${page.content}">
+                    <td th:text="${row.prmmiMnno}"></td>
+                    <td th:text="${row.bzmnNm}"></td>
+                    <td th:text="${row.brno}"></td>
+                    <td th:text="${row.crno}"></td>
+                    <td th:text="${row.admCd}"></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="d-flex justify-content-center mt-3">
+            <a th:if="${page.hasPrevious()}" th:href="@{/pagedTradeBizInfs(page=${page.number - 1})}"
+                class="btn btn-outline-primary btn-sm mx-1">이전</a>
+        
+            <span th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+                <a th:href="@{/pagedTradeBizInfs(page=${i})}" th:text="${i + 1}"
+                    th:classappend="${i == page.number} ? 'btn btn-primary btn-sm mx-1' : 'btn btn-outline-primary btn-sm mx-1'">
+                </a>
+            </span>
+        
+            <a th:if="${page.hasNext()}" th:href="@{/pagedTradeBizInfs(page=${page.number + 1})}"
+                class="btn btn-outline-primary btn-sm mx-1">다음</a>
+        </div>
+        
+    </div>
 
 </div>
 </body>
